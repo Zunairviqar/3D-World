@@ -161,7 +161,7 @@ function setup() {
 
 	// box primitive
 	drawing = new Box({
-		x:10, y:3, z:-15,
+		x:25, y:3, z:-25,
 		width:4, height: 3, depth: 0.1,
 		asset: texture1,
 		red: 220, green: 225, blue: 220,
