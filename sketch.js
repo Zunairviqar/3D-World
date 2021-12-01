@@ -183,7 +183,7 @@ function setup() {
 		text: 'Draw On Me!',
 		red: 128, green: 0, blue: 0,
 		side: 'double',
-		x: 10, y: 5, z: -15,
+		x: 25, y: 5, z: -25,
 		scaleX: 15, scaleY: 15, scaleZ: 15
 	});
 	world.add(drawtext);
