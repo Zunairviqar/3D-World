@@ -14,13 +14,19 @@ let buffer1;
 // we will also need three variables to hold the dynamic textures that will be created using
 let texture1;
 
+// 3d models
 let cat, dog, ball;
 
+// objects
 let playBall, c, drawing;
 
 // sounds
 let click;
 
+// robot
+let robHead, robHead2, robBody, robContain, rx=0.05, rz=0.05;
+
+// load sounds
 function preload() {
 	bgSound = loadSound("sounds/bg.mp3");
 	click = loadSound("sounds/click.mp3");
@@ -34,6 +40,7 @@ function setup() {
 	// this function requires a reference to the ID of the 'a-scene' tag in our HTML document
 	world = new World('VRScene');
 
+	// add sky
 	sky = new Sky({
 		asset: 'sky'
 	});
@@ -86,8 +93,7 @@ function setup() {
 	// c = new Cube(10,10,1);
 	playBall = new Ball(6,0.2,-3);
 
-
-
+	// dog model
 	dog = new GLTF({
 		asset: 'dog',
 		x: 10,
@@ -96,6 +102,7 @@ function setup() {
 	});
 	world.add(dog);
 
+	// cat model
 	cat = new GLTF({
 		asset: 'cat',
 		x: 15,
@@ -107,20 +114,7 @@ function setup() {
 	});
 	world.add(cat);
 
-	// ball = new GLTF({
-	// 	asset: 'ball',
-	// 	x: 20,
-	// 	y: 1,
-	// 	z: -5,
-	// 	red: 50,
-	// 	green: 50,
-	// 	blue: 0,
-	// 	scaleX:0.001,
-	// 	scaleY:0.001,
-	// 	scaleZ:0.001
-	// });
-	// world.add(ball);
-
+	// maze model
 	maze = new GLTF({
 		asset: 'maze',
 		x: 100,
@@ -138,6 +132,7 @@ function setup() {
 	});
 	world.add(maze);
 
+// prison model
 	prison = new GLTF({
 		asset: 'prison',
 		x: -30,
@@ -161,7 +156,7 @@ function setup() {
 	// set up these graphics buffers as dynamic textures
 	texture1 = world.createDynamicTextureFromCreateGraphics( buffer1 );
 
-	// box primitive
+	// drawing primitive
 	drawing = new Box({
 		x:25, y:3, z:-25,
 		width:4, height: 3, depth: 0.1,
@@ -181,6 +176,36 @@ function setup() {
 	});
 	world.add(drawing);
 
+	robContain = new Container3D({x:-15, y:0, z:-5});
+
+	// robot head primitive
+	robHead = new Dodecahedron({
+		x:-0.25, y:1.2, z:0,
+		radius: 0.25,
+		red: 0, green: 225, blue: 0
+	});
+
+	// robot head primitive
+	robHead2 = new Dodecahedron({
+		x:0.25, y:1.2, z:0,
+		radius: 0.25,
+		red: 0, green: 225, blue: 0
+	});
+
+	// robot body primitive
+	robBody = new Box({
+		x:0, y:0.5, z:0,
+		width:1, height: 1, depth: 1,
+		red: 0, green: 0, blue: 220
+	});
+
+	// add robot to world
+	world.add(robContain);
+	robContain.addChild(robHead);
+	robContain.addChild(robHead2);
+	robContain.addChild(robBody);
+
+	// write text on drawing
 	var drawtext = new Text({
 		text: 'Draw On Me!',
 		red: 128, green: 0, blue: 0,
@@ -190,6 +215,7 @@ function setup() {
 	});
 	world.add(drawtext);
 
+	// text on maze
 	var mazetext = new Text({
 		text: 'MAZE IN CONSTRUCTION!',
 		red: 128, green: 128, blue: 0,
@@ -198,51 +224,33 @@ function setup() {
 		scaleX: 105, scaleY: 105, scaleZ: 105
 	});
 	world.add(mazetext);
-
-	// 	drawing = new Box({
-	// 	x:100, y:3, z:-5,
-	// 	width:3, height:3, depth:3,
-	// 	asset: texture1,
-	// 	red: 220, green: 225, blue: 220,
-	// 	dynamicTexture: true,
-	// 	dynamicTextureWidth: 512,
-	// 	dynamicTextureHeight: 512,
-	// 	overFunction: function(entity, intersectionInfo) {
-	// 		// intersectionInfo is an object that contains info about how the user is
-	// 		// interacting with this entity.  it contains the following info:
-	// 		// .distance : a float describing how far away the user is
-	// 		// .point3d : an object with three properties (x, y & z) describing where the user is touching the entity
-	// 		// .point2d : an object with two properites (x & y) describing where the user is touching the entity in 2D space (essentially where on the dynamic canvas the user is touching)
-	// 		// .uv : an object with two properies (x & y) describing the raw textural offset (used to compute point2d)
-
-	// 		// draw an ellipse at the 2D intersection point on the dynamic texture
-	// 		buffer1.fill(random(255), random(255), random(255));
-	// 		buffer1.ellipse( intersectionInfo.point2d.x, intersectionInfo.point2d.y, 20, 20);
-	// 	}
-	// });
-	// world.add(drawing);
 }
 
 function draw() {
 
-	// if (mouseIsPressed) {
-	// 	world.moveUserForward(0.05);
-	// }
-	// for (let i = 0; i < 100; i++) {
-		// if (mouseIsPressed){
-			// trees[i].container.spinY(1);
-		// }
-	// }
+	// robContain.spinY(1);
 
-	// always create a new particle
+	// move our robot in x and z direction
+	robContain.nudge(rx, 0, rz);
+
+	// every 1000 frames change its x direction and spin it
+	if (frameCount%1000 == 0) {
+		rx *= -1;
+		robContain.spinY(30);
+	}
+	// every 599 frames change its z direction and spin it
+	else if (frameCount%599 == 0) {
+		rz *= -1;
+		robContain.spinY(30);
+	}
+
+
+	// always create a new rain particle
 	var temp = new Particle(random(-20, 20), 15, random(-20,20));
 
-	// add to array
-	// for (var i = 0; i < 10; i++) {
 	particles.push( temp );
-	// }
 
-	// draw all particles
+	// draw all rain
 	for (var i = 0; i < particles.length; i++) {
 		var result = particles[i].move();
 		if (result == "gone") {
@@ -250,89 +258,53 @@ function draw() {
 			i-=1;
 		}
 	}
-
-
-
-
-
-	// // here we are drawing to our 2D canvas.  Note that if you did not use the canvas as a texture
-	// // in one of your 3D elements you wouldn't be able to see it at all
-	// fill(random(255));
-	// rect(random(width), random(height), random(5,30), random(5,30));
-
-	// texture1 - random black and white squares
-	// let s1 = random(5,30);
-	// buffer3.fill(random(255));
-	// buffer3.rect(random(0, 256), random(0,256), s1, s1);
 }
 
+// tree class
 class Tree {
 	constructor(x, z, h) {
 
 		// create a "container" object
 		this.container = new Container3D({
 			x:x, y:h, z:z,
-			clickFunction: function(theBox) {
-				console.log("TOUCHED bOX")
-				// theBox.setColor( random(255), random(255), random(255) );
-				// world.slideToObject( theBox, 1000 );
-				// click.play();
-			}
-			// leaveFunction: function(c) {
-			// 	// make the cube normal size
-			// 	this.leaves.setBlue(255);
-			// 	// theStem.spinY(0)
-			// }
 		});
 		// add the container to the world
 		world.add(this.container);
 
+		// tree stem
 		this.stem = new Cylinder({
 			x: 0, y:-h/2, z:0,
 			height: h,
 			radius: 0.18,
-			red: 150, green:98, blue:72,
-			// enterFunction: function(theStem) {
-			// 	// make the stem slighly bigger
-			// 	theStem.setRadius(0.3);
-			// 	// theStem.spinY(100)
-			// },
-			// leaveFunction: function(theStem) {
-			// 	// make the cube normal size
-			// 	theStem.setRadius(0.2);
-			// 	// theStem.spinY(0)
-			// }
+			red: 150, green:98, blue:72
 		});
+
+		// tree leaves
 		this.leaves = new Cone({
 			x: 0, y:0, z:0,
 			height:random(1, 1.8),
 			radiusBottom: 0.6, radiusTop: 0.01,
-			red: random(20, 40), green:random(120, 140), blue:0,
-			// enterFunction: function(theleaves) {
-			// 	// make the stem slighly bigger
-			// 	theleaves.setRadiusBottom(0.7);
-			// 	// theStem.spinY(100)
-			// },
-			// leaveFunction: function(theleaves) {
-			// 	// make the cube normal size
-			// 	theleaves.setRadiusBottom(0.5);
-			// 	// theStem.spinY(0)
-			// }
+			red: random(20, 40), green:random(120, 140), blue:0
 		});
 
+		// add stem and leaves to container
 		this.container.addChild(this.stem);
 		this.container.addChild(this.leaves);
 	}
 }
 
+// Brick class
 class Cube {
 	constructor(x,y,z) {
 
+		// new brick
 		this.box = new Box({
 			x:x, y:y, z:z,
 			width:0.7, height: 0.3, depth: 0.3,
+			// iron asset
 			asset: 'iron',
 			red:255, green:217, blue:179,
+			// change color upon clicking and slide to brick
 			clickFunction: function(theBox) {
 				// console.log("TOUCHED bOX")
 				theBox.setColor( random(255), random(255), random(255) );
@@ -345,6 +317,7 @@ class Cube {
 	}
 }
 
+// ball to be played with
 class Ball {
 	constructor (x, y, z) {
 	// box primitive
@@ -357,7 +330,8 @@ class Ball {
 		world.add(this.ball);
 	}
 }
-// class to describe a particle's behavior
+
+// class to describe a rain particle's behavior
 class Particle {
 
 	constructor(x,y,z) {
@@ -412,6 +386,7 @@ class Particle {
 	}
 }
 
+// play sound
 function keyPressed(){
 	if(!bgSound.isPlaying())
 	bgSound.loop();
