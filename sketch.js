@@ -19,12 +19,12 @@ let cat, dog, ball;
 let playBall, c, drawing;
 
 // sounds
-let bgSound, click;
+let click;
 
-// function preload() {
-// 	bgSound = loadSound("sounds/bg.mp3");
-// 	click = loadSound("sounds/click.mp3");
-// }
+function preload() {
+	bgSound = loadSound("sounds/bg.mp3");
+	click = loadSound("sounds/click.mp3");
+}
 
 function setup() {
 	// no canvas needed
@@ -38,15 +38,17 @@ function setup() {
 		asset: 'sky'
 	});
 	world.add(sky);
+	bgSound.setVolume(0.3);
+
 
 	// set a background color for our world
 	world.setBackground(192, 133, 201);
 
 	// create a plane to serve as our "ground"
 	let g = new Plane({
-		x:0, y:0, z:0, 
-		width:1000, height:1000, 
-		red:255, green:212, blue:133, 
+		x:0, y:0, z:0,
+		width:1000, height:1000,
+		red:255, green:212, blue:133,
 		rotationX:-90});
 
 	// add the plane to our world
@@ -175,7 +177,7 @@ function setup() {
 			if (mouseIsPressed) {
 				buffer1.ellipse( intersectionInfo.point2d.x, intersectionInfo.point2d.y, 12, 12);
 			}
-		}			
+		}
 	});
 	world.add(drawing);
 
@@ -250,6 +252,9 @@ function draw() {
 	}
 
 
+
+
+
 	// // here we are drawing to our 2D canvas.  Note that if you did not use the canvas as a texture
 	// // in one of your 3D elements you wouldn't be able to see it at all
 	// fill(random(255));
@@ -263,6 +268,24 @@ function draw() {
 
 class Tree {
 	constructor(x, z, h) {
+
+		// create a "container" object
+		this.container = new Container3D({
+			x:x, y:h, z:z,
+			clickFunction: function(theBox) {
+				console.log("TOUCHED bOX")
+				// theBox.setColor( random(255), random(255), random(255) );
+				// world.slideToObject( theBox, 1000 );
+				// click.play();
+			}
+			// leaveFunction: function(c) {
+			// 	// make the cube normal size
+			// 	this.leaves.setBlue(255);
+			// 	// theStem.spinY(0)
+			// }
+		});
+		// add the container to the world
+		world.add(this.container);
 
 		this.stem = new Cylinder({
 			x: 0, y:-h/2, z:0,
@@ -297,28 +320,8 @@ class Tree {
 			// }
 		});
 
-		// create a "container" object
-		this.container = new Container3D({
-			x:x, y:h, z:z
-			// clickFunction: function(c) {
-			// 	console.log("TOUVHED")
-			// 	// make the stem slighly bigger
-			// 	// c.setScale(10, 10, 10);
-			// 	this.leaves.setBlue(255);
-			// 	// theStem.spinY(100)
-			// }
-			// leaveFunction: function(c) {
-			// 	// make the cube normal size
-			// 	this.leaves.setBlue(255);
-			// 	// theStem.spinY(0)
-			// }
-		});
-
 		this.container.addChild(this.stem);
 		this.container.addChild(this.leaves);
-
-		// add the container to the world
-		world.add(this.container);
 	}
 }
 
@@ -333,7 +336,8 @@ class Cube {
 			clickFunction: function(theBox) {
 				// console.log("TOUCHED bOX")
 				theBox.setColor( random(255), random(255), random(255) );
-				world.slideToObject( theBox, 2000 );
+				world.slideToObject( theBox, 1000 );
+				click.play();
 			}
 		});
 
@@ -347,7 +351,7 @@ class Ball {
 		this.ball = new Sphere({
 			x:x, y:y, z:z,
 			radius: 0.2,
-			red:255, green:0, blue:0			
+			red:255, green:0, blue:0
 		});
 
 		world.add(this.ball);
@@ -378,7 +382,7 @@ class Particle {
 	move() {
 		// compute how the particle should move
 		// the particle should always move up by a small amount
-		var yMovement = -0.05;
+		var yMovement = -0.15;
 
 		// the particle should randomly move in the x & z directions
 		var xMovement = map( noise(this.xOffset), 0, 1, -0.01, 0.01);
@@ -408,4 +412,7 @@ class Particle {
 	}
 }
 
-
+function keyPressed(){
+	if(!bgSound.isPlaying())
+	bgSound.loop();
+}
